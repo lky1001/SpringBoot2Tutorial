@@ -104,15 +104,15 @@ public class FruitsEndpoint {
     public void addFruits(@Selector String name, Fruit fruit) { ... }
 }
 ```
-    - Fruits Endpoint를 ApplicationContext에 등록하기만 하면, fruits는 우리가 선택한 기술에 통해 웹의 endpoint로 노출된다. 
-    - 설정을 통해 JMX를 통해서도 노출시킬 수 있다.
+   - Fruits Endpoint를 ApplicationContext에 등록하기만 하면, fruits는 우리가 선택한 기술에 통해 웹의 endpoint로 노출된다. 
+   - 설정을 통해 JMX를 통해서도 노출시킬 수 있다.
 ```
       GET /application/fruits:  fruits를 전달
       POST /applications/fruits/{a-fruit}:  payload에 포함된 fruit를 다룸
 ```
-    - 위의 예시 외에도 다양하게 적용할 수 있다. 
-    - 더 세분화된 데이터를 불러올 수도 있고, 기반 기술에 따라 구체적인 구현을 정의할 수도 있다. (예를 들어, JMX vs. Web 처럼).
-    - 더 깊이 들어가면 이 글의 목적에 어긋나므로, 관련 설명은 이정도로 마치겠다.
+   - 위의 예시 외에도 다양하게 적용할 수 있다. 
+   - 더 세분화된 데이터를 불러올 수도 있고, 기반 기술에 따라 구체적인 구현을 정의할 수도 있다. (예를 들어, JMX vs. Web 처럼).
+   - 더 깊이 들어가면 이 글의 목적에 어긋나므로, 관련 설명은 이정도로 마치겠다.
     
   -  Actuator의 security
      - 스프링부트 1.x버전의 actuator는 자신만의 security 모델을 정의함. 
