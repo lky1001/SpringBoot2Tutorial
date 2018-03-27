@@ -78,3 +78,74 @@ http.authorizeRequests()
     - 웹플럭스를 위한 테스트 유틸리티. @WebFluxTest 사용 가능
     - @WebFluxTest는 1.4에서 다양한 테스트 부분에 포함된 @WebMvcTest와 유사하게 동작함. 
     
+4. Production-ready features 
+
+  - 스프링부트는 production-ready 애플리케이션을 만드는 데에 유용한 툴들을 제공한다. 
+  - 그중에서도 Spring Boot Actuator의 장점을 살린다. 
+  - Actuator는 간단하게 앱을 모니터링할 수 있는 다양한 툴들을 포함한다. 
+  - Actuator에 대한 더 자세한 사항은 [이전에 쓰인 글](http://www.baeldung.com/spring-boot-actuators)에서 확인할 수 있다.
+  - 스프링부트2에서의 actuator는 커스터마이징을 간단하게 적용할 수 있는데에 초점을 두었다. 이는 새로운 리액티브 모듈을 포함한 다른 웹 기술들도 지원한다.
+  - 기술 지원
+    - 스프링부트 1.x 버전에서는 Spring-MVC만 acutoator의 End-point를 위해 지원
+    - 2.x 버전에서 Spring-MVC는 독립적이고 플러그 가능해짐.
+    - WebFlux, Jersey, Spring-MVC에 대해서도 지원 
+    - 이전과 마찬가지로 JMX는 옵션으로 남아있고, 설정을 통해 사용할지 안할지를 결정할 수 있다.
+    
+  - Endpoints 커스터마이징
+    - 새로운 actuator 인프라구조는 특정 기술에 의존하지 않기 때문에 개발 모델은 처음부터 다시 디자인되었다. 
+    - 이 새로운 모델은 더 큰 확장성과 다양한 표현이 가능해지게 했다.
+    - 새로운 Actuator를 이용하여 Fruits endpoint를 어떻게 만드는지 살펴보자
+```
+@Endpoint(id = "fruits")
+public class FruitsEndpoint {
+    @ReadOperation
+    public Map<String, Fruit> fruits() { ... }
+    @WriteOperation
+    public void addFruits(@Selector String name, Fruit fruit) { ... }
+}
+```
+    - Fruits Endpoint를 ApplicationContext에 등록하기만 하면, fruits는 우리가 선택한 기술에 통해 웹의 endpoint로 노출된다. 
+    - 설정을 통해 JMX를 통해서도 노출시킬 수 있다.
+```
+      GET /application/fruits:  fruits를 전달
+      POST /applications/fruits/{a-fruit}:  payload에 포함된 fruit를 다룸
+```
+    - 위의 예시 외에도 다양하게 적용할 수 있다. 
+    - 더 세분화된 데이터를 불러올 수도 있고, 기반 기술에 따라 구체적인 구현을 정의할 수도 있다. (예를 들어, JMX vs. Web 처럼).
+    - 더 깊이 들어가면 이 글의 목적에 어긋나므로, 관련 설명은 이정도로 마치겠다.
+    
+  -  Actuator의 security
+     - 스프링부트 1.x버전의 actuator는 자신만의 security 모델을 정의함. 
+     - 이 security 모델은 애플리케이션에서 사용되는 것과는 좀 다르다. 이로 인해, 사용자가 security 모델을 수정할 때마다 큰 부담이 따른다. 
+     - 스프링부트 2.x 버전에서 security 설정은 애플리케이션에서 사용하는 설정에 따라 규정된다. 
+     - 기본적으로 대부분의 actuator의 endpoint들은 비활성화 되어있다. 
+     - classpath에 Spring Security가 있던 없던 상관없다. 
+     - status와 info외에 모든 endpoint들은 사용자에 의해 활성화되어야 한다.
+
+  - 이 밖의 변화들
+     - 대부분의 설정 속성들은 management.xxx에 들어간다. ex)management.endpoints.jmx
+     - 일부 endpoint들은 새로운 포맷을 가진다. ex) flyway, liquidbase 등
+     - 미리 정의된 endpoint 경로는 더이상 설정가능하지 않다.
+
+5. 개선된 개발 경험
+
+  - 더 나은 피드백
+     - 스프링부트는 devtools를 1.3버전에서 소개했다.
+     - devtools는 뷰 키술들을 캐싱하는 것과 같은 일반적인 개발 이슈들을 다루며, 자동 실행과 브라우저에서의 실시간 리로딩을 수행한다. 
+     - 또한 remote 디버깅을 할 수 있게 해준다. 
+     - 스프링부터 2.x 버전에서 devtools를 통해 애플리케이션이 재시작되면, 'delta' 리포트가 출력된다. 
+     - 이 리포트는 애플리케이션에서 어떤 부분이 변경되어 영향을 미쳤는지를 알려준다.
+     - 스프링부트에 의해 인식된 하나의 JDBC Datasource를 정의했다고 하자. 
+        - devtools는 자동으로 인식된 datasource가 생성되지 않았다고 알려줄 것이다. 
+        - 또한, devtools는 javax.sql.DataSource 타입에 대한 @ConditionalOnMissingBean과의 부적절한 연결을 원인으로 지적할 것이다. 
+        - devtools는 애플리케이션이 재시작할 때마다 이 리포트를 출력할 것이다.
+  - 큰 변화
+     - JDK 9 이슈로 인해서, devtools는 HTTP를 통한 원격 디버깅 지원을 중단했다.
+
+6. 요약
+
+  - 이 글에서는 스프링부트2가 가져올 일부 변화들을 살펴봤다. 
+  - 우리는 의존성과 어떻게 java8이 최소 요구사항이 되었는지 다루었다. 
+  - 다음으로 자동구성에 대해 얘기했고, security에 대해서도 알아봤다. 
+  - 또한, actuator와 관련된 다양한 개선점들을 확인했다. 
+  - 마지막으로, 개발툴에서의 작은 변화들도 살펴보았다.
